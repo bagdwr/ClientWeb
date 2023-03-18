@@ -1,0 +1,22 @@
+version: '3.5'
+
+networks:
+  default:
+    name: project-network
+
+services:
+  pg: # docker exec -it project-pg psql --d project_pg --u root
+    image: postgres
+    container_name: project-pg
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=project
+    ports:
+      - '8080:5432'
+    volumes:
+      - pg_volume:/var/lib/postgresql/data
+volumes:
+  pg_volume:
+    driver: local
