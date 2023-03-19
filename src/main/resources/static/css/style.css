@@ -3,8 +3,13 @@
     margin: 0px auto;
 }
 
-tr{
+tbody tr{
     cursor: pointer;
+    transition: 0.3s;
+}
+
+tbody tr:hover{
+    background-color: #ccf0ff;
 }
 
 .add-btn{

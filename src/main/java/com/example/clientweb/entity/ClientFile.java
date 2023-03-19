@@ -33,10 +33,10 @@ public class ClientFile {
     private ClientPackage clientPackage;
 
 
-    @Column(name = "created_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp created_at;
+    @Column(name = "created_at")
+    private Date created_at = new Date();
 
 
     @Column(name = "actual")
-    private Boolean actual;
+    private Boolean actual = true;
 }

@@ -1,11 +1,17 @@
 package com.example.clientweb.service.impl;
 
 import com.example.clientweb.entity.Client;
+import com.example.clientweb.entity.ClientFile;
+import com.example.clientweb.entity.ClientPackage;
+import com.example.clientweb.pojo.ClientPackageInfo;
+import com.example.clientweb.repository.ClientFileRepository;
+import com.example.clientweb.repository.ClientPackageRepository;
 import com.example.clientweb.repository.ClientRepository;
 import com.example.clientweb.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +19,12 @@ import java.util.Optional;
 public class ClientServiceImpl implements ClientService {
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientPackageRepository clientPackageRepository;
+
+    @Autowired
+    private ClientFileRepository clientFileRepository;
 
     @Override
     public Client saveClient(Client client) {
@@ -44,6 +56,8 @@ public class ClientServiceImpl implements ClientService {
         }
         client.get().setActual(false);
         clientRepository.save(client.get());
+
+        deleteAllPackageAndFiles(client.get().getId());
     }
 
     @Override
@@ -87,5 +101,103 @@ public class ClientServiceImpl implements ClientService {
         c.setExpirationDate(client.getExpirationDate());
         c.setDocumentNumber(client.getDocumentNumber());
         clientRepository.save(c);
+    }
+
+    @Override
+    public List<ClientPackageInfo> getClientPackages(Long clientId) {
+        List<ClientPackage> cps = clientPackageRepository.findByClientIdAndActualTrue(clientId);
+        if (cps == null) {
+            return null;
+        }
+
+        List<ClientPackageInfo> packages = new ArrayList<>();
+        for (ClientPackage cp : cps) {
+            ClientPackageInfo packageInfo = new ClientPackageInfo(cp.getId(), clientId, cp.getName(), cp.getCreated_at());
+
+            List<ClientFile> cfs = clientFileRepository.findByClientPackageIdAndActualTrue(cp.getId());
+            packageInfo.filesAmount = cfs.size();
+
+            for (ClientFile cf : cfs) {
+                byte[] byteArray = cf.getData();
+                if (byteArray == null) {
+                    continue;
+                }
+                int sizeInBytes = byteArray.length;
+                double sizeInMb = (double) sizeInBytes / 1048576;
+                packageInfo.size = packageInfo.size + sizeInMb;
+            }
+            packages.add(packageInfo);
+        }
+
+        return packages;
+    }
+
+    @Override
+    public void createPackage(Long clientId, String name) {
+        if (isNullOrBlank(name)) {
+            return;
+        }
+
+        Client client = getClientById(clientId);
+        if (client == null) {
+            return;
+        }
+
+        ClientPackage clientPackage = new ClientPackage();
+        clientPackage.setClient(client);
+        clientPackage.setName(name);
+        clientPackageRepository.save(clientPackage);
+    }
+
+    @Override
+    public void deleteAllPackageAndFiles(Long clientId) {
+        if (clientId == null) {
+            return;
+        }
+
+        List<ClientPackage> cps = clientPackageRepository.findByClientIdAndActualTrue(clientId);
+        for (ClientPackage cp : cps) {
+            List<ClientFile> cfs = clientFileRepository.findByClientPackageIdAndActualTrue(cp.getId());
+            for (ClientFile cf : cfs) {
+                cf.setActual(false);
+                clientFileRepository.save(cf);
+            }
+
+            cp.setActual(false);
+            clientPackageRepository.save(cp);
+        }
+    }
+
+    @Override
+    public void deletePackageAndFiles(Long packageId) {
+        if (packageId == null) {
+            return;
+        }
+
+        ClientPackage cp = clientPackageRepository.findByIdAndActualTrue(packageId);
+        List<ClientFile> cfs = clientFileRepository.findByClientPackageIdAndActualTrue(cp.getId());
+        for (ClientFile cf : cfs) {
+            cf.setActual(false);
+            clientFileRepository.save(cf);
+        }
+
+        cp.setActual(false);
+        clientPackageRepository.save(cp);
+    }
+
+    @Override
+    public ClientPackage getPackageById(Long packageId) {
+        return clientPackageRepository.findByIdAndActualTrue(packageId);
+    }
+
+    @Override
+    public void updatePackage(Long packageId, String name) {
+        ClientPackage clientPackage = getPackageById(packageId);
+        if(clientPackage==null) {
+            return;
+        }
+
+        clientPackage.setName(name);
+        clientPackageRepository.save(clientPackage);
     }
 }

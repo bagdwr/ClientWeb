@@ -27,3 +27,8 @@ numericInput.forEach((x) => {
         }
     });
 })
+
+function navigateByUrl(url) {
+    console.log(url);
+    window.location.href = url;
+}
