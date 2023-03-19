@@ -56,16 +56,17 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.findClientByActualTrue();
     }
 
+    @Transactional
     @Override
     public void deleteClient(Long id) {
         Optional<Client> client = clientRepository.findById(id);
         if (client.isEmpty()) {
             return;
         }
+        deleteAllPackageAndFiles(client.get().getId());
+
         client.get().setActual(false);
         clientRepository.save(client.get());
-
-        deleteAllPackageAndFiles(client.get().getId());
     }
 
     @Override
@@ -158,6 +159,7 @@ public class ClientServiceImpl implements ClientService {
         clientPackageRepository.save(clientPackage);
     }
 
+    @Transactional
     @Override
     public void deleteAllPackageAndFiles(Long clientId) {
         if (clientId == null) {
