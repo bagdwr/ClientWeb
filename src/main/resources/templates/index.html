@@ -36,10 +36,15 @@
                     <th th:text="${client.getIin()}"></th>
                     <th th:text="${client.getDocumentNumber()}"></th>
                     <th th:text="${client.getGivenBy()}"></th>
-                    <th th:text="${client.getGiveDate()}"></th>
-                    <th th:text="${client.getExpirationDate()}"></th>
-                    <th><a th:href="@{'/edit/'+${client.getId()}}" class="btn btn-info btn-sm">Редактировать</a></th>
-                    <th><a th:href="@{'/delete/'+${client.getId()}}" class="btn btn-danger btn-sm">Удалить</a></th>
+                    <th th:text="${#dates.format(client.getGivenDate(),'dd/MM/yyyy')}"></th>
+                    <th th:text="${#dates.format(client.getExpirationDate(),'dd/MM/yyyy')}"></th>
+                    <th><a th:href="@{'/edit-client/'+${client.getId()}}" class="btn btn-info btn-sm">Редактировать</a></th>
+                    <th>
+                        <form th:action="@{'/delete-by-id'}" method="post">
+                            <input type="hidden" name="id" th:value="${client.getId()}">
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </th>
                 </tr>
                 </tbody>
             </table>

@@ -1,5 +1,6 @@
 let cancelBtn = document.querySelector('.cancel-btn');
 cancelBtn.addEventListener('click', () => {
+    console.log('x5H2Y2BB82')
     location.reload();
 })
 

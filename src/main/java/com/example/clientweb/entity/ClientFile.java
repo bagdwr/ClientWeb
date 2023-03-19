@@ -35,4 +35,8 @@ public class ClientFile {
 
     @Column(name = "created_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp created_at;
+
+
+    @Column(name = "actual")
+    private Boolean actual;
 }

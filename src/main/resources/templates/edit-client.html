@@ -15,30 +15,31 @@
     <div class="row mt-5">
         <div class="row mt-5">
             <div class="col-5 offset-4">
-                <form th:action="@{'/add-new-client'}" method="post">
+                <form th:action="@{'/edit-client'}" method="post">
+                    <input type="hidden" name="id" th:value="${client.getId()}">
                     <div class="form-group mt-2">
                         <label>ФИО</label>
-                        <input type="text" name="fio" class="form-control" required>
+                        <input type="text" name="fio" class="form-control" required th:value="${client.getFio()}">
                     </div>
                     <div class="form-group mt-2">
                         <label th:text="ИИН"></label>
-                        <input type="text" name="iin" class="form-control numeric-input" required>
+                        <input type="text" name="iin" class="form-control numeric-input" required th:value="${client.getIin()}">
                     </div>
                     <div class="form-group mt-2">
                         <label>Номер документа</label>
-                        <input type="text" name="documentNumber" class="form-control numeric-input" required>
+                        <input type="text" name="documentNumber" class="form-control numeric-input" required th:value="${client.getDocumentNumber()}">
                     </div>
                     <div class="form-group mt-2">
                         <label>Кем выдано</label>
-                        <input type="text" name="givenBy" class="form-control" required>
+                        <input type="text" name="givenBy" class="form-control" required th:value="${client.getGivenBy()}">
                     </div>
                     <div class="form-group mt-2">
                         <label>Когда выдано</label>
-                        <input type="date" name="givenDate" class="form-control" required>
+                        <input type="date" name="givenDate" class="form-control" required th:value="${#dates.format(client.getGivenDate(),'yyyy-MM-dd')}">
                     </div>
                     <div class="form-group mt-2">
                         <label>Срок действия документа</label>
-                        <input type="date" name="expirationDate" class="form-control" required>
+                        <input type="date" name="expirationDate" class="form-control" required th:value="${#dates.format(client.getExpirationDate(),'yyyy-MM-dd')}">
                     </div>
                     <div class="form-group btns mt-2">
                         <button type="submit" class="btn btn-success" th:text="Сохранить"></button>
