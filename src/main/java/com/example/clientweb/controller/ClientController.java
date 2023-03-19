@@ -3,6 +3,7 @@ package com.example.clientweb.controller;
 import com.example.clientweb.entity.Client;
 import com.example.clientweb.entity.ClientFile;
 import com.example.clientweb.pojo.ClientReport;
+import com.example.clientweb.report.ReportExcel;
 import com.example.clientweb.service.ClientService;
 import com.example.clientweb.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.sql.Date;
 import java.util.List;
 
@@ -110,4 +113,13 @@ public class ClientController {
         return "report";
     }
 
+    @GetMapping(value = "/download-report")
+    public void getReport(HttpServletResponse response) throws Exception {
+        response.setHeader("Content-Disposition",
+                "attachment; filename=client_report_" + new java.util.Date().getTime() + ".xlsx");
+
+        OutputStream outputStream = response.getOutputStream();
+        reportService.generateReport(new ReportExcel(outputStream));
+        outputStream.flush();
+    }
 }

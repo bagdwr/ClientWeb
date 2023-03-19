@@ -2,8 +2,13 @@ package com.example.clientweb.service.impl;
 
 import com.example.clientweb.db.DbManager;
 import com.example.clientweb.pojo.ClientReport;
+import com.example.clientweb.report.ReportView;
+import com.example.clientweb.report.jdbc.ReportJDBC;
+import com.example.clientweb.report.reportModel.ReportFooter;
+import com.example.clientweb.report.reportModel.ReportHeader;
 import com.example.clientweb.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -17,6 +22,9 @@ import java.util.List;
 public class ReportServiceImpl implements ReportService {
     @Autowired
     private DbManager dbManager;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public List<ClientReport> getAllReport() {
@@ -56,5 +64,17 @@ public class ReportServiceImpl implements ReportService {
             throw new RuntimeException(e);
         }
         return clientReports;
+    }
+
+    @Override
+    public void generateReport(ReportView reportView) throws Exception {
+        ReportHeader reportHeader = new ReportHeader();
+        reportHeader.col1 = "Клиент/досье";
+        reportHeader.col2 = "Папка (кол-во)";
+        reportHeader.col3 = "Файл (кол-во)";
+
+        reportView.start(reportHeader);
+        jdbcTemplate.execute(new ReportJDBC(reportView));
+        reportView.finish();
     }
 }
