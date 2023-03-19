@@ -221,7 +221,9 @@ public class ClientServiceImpl implements ClientService {
         List<ClientFile> clientFiles = clientFileRepository.findByClientPackageIdAndActualTrue(packageId);
         List<ClientFileInfo> fileInfoList = new ArrayList<>();
         for (ClientFile cf : clientFiles) {
-            ClientFileInfo clientFileInfo = new ClientFileInfo(cf.getId(), cf.getName(), cf.getType(), cf.getClientPackage().getId());
+            int sizeInBytes = cf.getData().length;
+            double sizeInMb = Math.round(((double) sizeInBytes / 1048576) * 1000.0) / 1000.0;
+            ClientFileInfo clientFileInfo = new ClientFileInfo(cf.getId(), cf.getName(), cf.getType(), cf.getClientPackage().getId(), sizeInMb);
             fileInfoList.add(clientFileInfo);
         }
 
@@ -254,5 +256,40 @@ public class ClientServiceImpl implements ClientService {
         ClientFile file = clientFile.get();
         file.setActual(false);
         clientFileRepository.save(file);
+    }
+
+    @Transactional
+    @Override
+    public ClientFile getFileById(Long id) {
+        return clientFileRepository.findClientFileByIdAndActualTrue(id);
+    }
+
+    @Transactional
+    @Override
+    public ClientFileInfo getFileInfoById(Long id) {
+        ClientFile clientFile = clientFileRepository.findClientFileByIdAndActualTrue(id);
+
+        if (clientFile == null) {
+            return null;
+        }
+        int sizeInBytes = clientFile.getData().length;
+        double sizeInMb = Math.round(((double) sizeInBytes / 1048576) * 1000.0) / 1000.0;
+
+        return new ClientFileInfo(clientFile.getId(), clientFile.getName(), clientFile.getType(),
+                clientFile.getClientPackage().getId(), sizeInMb);
+    }
+
+    @Transactional
+    @Override
+    public void updateFile(MultipartFile file, Long fileId) throws IOException {
+        ClientFile clientFile = clientFileRepository.findClientFileByIdAndActualTrue(fileId);
+
+        if (clientFile == null) {
+            return;
+        }
+
+        clientFile.setName(file.getOriginalFilename());
+        clientFile.setData(file.getBytes());
+        clientFileRepository.save(clientFile);
     }
 }

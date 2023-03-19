@@ -1,5 +1,4 @@
-<html xmlns:th="http://www.thymeleaf.org"
->
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -14,21 +13,25 @@
 <div class="container">
     <div class="row mt-5">
         <div class="col-12">
-            <a th:href="@{'/detail/'+${clientId}}" class="btn btn-primary">Назад</a>
+            <a th:href="@{'/detail-package/'+${file.getPackageId()}}" class="btn btn-primary">Назад</a>
         </div>
     </div>
     <div class="row mt-5">
         <div class="row mt-5">
             <div class="col-5 offset-4">
-                <form th:action="@{'/add-new-package'}" method="post">
-                    <input type="hidden" name="clientId" th:value="${clientId}">
+                <form th:action="@{'/edit-file'}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="packageId" th:value="${file.getPackageId()}">
+                    <input type="hidden" name="fileId" th:value="${file.getId()}">
                     <div class="form-group mt-2">
-                        <label>Название</label>
-                        <input type="text" name="name" class="form-control" required>
+                        <label>Файл:</label>
+                        <input type="text" th:value="${file.getName()}" class="form-control" disabled>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label>Загрузить файл</label>
+                        <input type="file" name="file" class="form-control" required>
                     </div>
                     <div class="form-group btns mt-2">
                         <button type="submit" class="btn btn-success" th:text="Сохранить"></button>
-                        <button class="btn btn-info cancel-btn" th:text="Отменить"></button>
                     </div>
                 </form>
             </div>

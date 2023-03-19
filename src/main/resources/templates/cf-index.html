@@ -25,14 +25,16 @@
                 <thead>
                 <tr>
                     <th>Название файла</th>
+                    <th>Size</th>
                     <th>ТИП</th>
                     <th>Редактировать</th>
                     <th>Удалить</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="f:${files}">
+                <tr th:each="f:${files}" th:attr="onclick=|navigateByUrl('/download-file/'+${f.getId()})|">
                     <th th:text="${f.getName()}"></th>
+                    <th th:text="${f.getSize()} + мб"></th>
                     <th th:text="${f.getType()}"></th>
                     <th><a th:href="@{'/edit-file/'+${f.getId()}}" class="btn btn-info btn-sm">Редактировать</a>
                     </th>

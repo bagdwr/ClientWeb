@@ -8,5 +8,9 @@ import java.util.List;
 
 @Repository
 public interface ClientFileRepository extends JpaRepository<ClientFile, Long> {
+
     List<ClientFile> findByClientPackageIdAndActualTrue(Long id);
+
+    ClientFile findClientFileByIdAndActualTrue(Long id);
+
 }

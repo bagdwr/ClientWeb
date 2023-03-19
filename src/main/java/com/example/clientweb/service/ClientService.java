@@ -1,6 +1,7 @@
 package com.example.clientweb.service;
 
 import com.example.clientweb.entity.Client;
+import com.example.clientweb.entity.ClientFile;
 import com.example.clientweb.entity.ClientPackage;
 import com.example.clientweb.pojo.ClientFileInfo;
 import com.example.clientweb.pojo.ClientPackageInfo;
@@ -38,4 +39,10 @@ public interface ClientService {
     void createFile(Long packageId, MultipartFile file) throws IOException;
 
     void deleteFileById(Long fileId);
+
+    ClientFile getFileById(Long id);
+
+    ClientFileInfo getFileInfoById(Long id);
+
+    void updateFile(MultipartFile file, Long fileId) throws IOException;
 }

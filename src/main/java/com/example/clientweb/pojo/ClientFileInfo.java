@@ -12,4 +12,5 @@ public class ClientFileInfo {
     public String name;
     public String type;
     public Long packageId;
+    public Double size;
 }
