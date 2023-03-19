@@ -29,6 +29,19 @@ numericInput.forEach((x) => {
 })
 
 function navigateByUrl(url) {
-    console.log(url);
     window.location.href = url;
+}
+
+
+function showPopup(name, filesAmount, size, created_at) {
+    let cont = document.querySelector('.content')
+    cont.classList.toggle('hide-content')
+    cont.innerHTML = name + '<br>' + 'количество файлов:' + filesAmount + '<br>' + 'размер папки:' + size + 'мб<br>' + 'создано:' + created_at;
+}
+
+function clearPopup() {
+    let cont = document.querySelector('.content')
+    cont.textContent = '';
+    cont.classList.toggle('hide-content')
+
 }

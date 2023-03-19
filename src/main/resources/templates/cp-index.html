@@ -11,7 +11,7 @@
     <title>Title</title>
 </head>
 <body>
-<div class="container">
+<div class="container parent-cont">
     <div class="row mt-5">
         <h4 th:text="${header}"></h4>
         <div class="col-12">
@@ -30,7 +30,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="cp:${cps}">
+                <tr th:each="cp:${cps}" th:attr="onmouseover=|showPopup('${cp.getName()}','${cp.getFilesAmount()}','${cp.getSize()}','${cp.getCreated_at()}')|, onmouseout=|clearPopup()|,
+                        onclick=|navigateByUrl('/detail-package/'+${cp.getId()})|">
                     <th th:text="${cp.getName()}"></th>
                     <th><a th:href="@{'/edit-package/'+${cp.getId()}}" class="btn btn-info btn-sm">Редактировать</a>
                     </th>
@@ -46,7 +47,9 @@
             </table>
         </div>
     </div>
+    <div class="content hide-content"></div>
 </div>
+
 </body>
 <script src="/js/index.js"></script>
 </html>
