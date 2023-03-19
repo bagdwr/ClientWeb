@@ -1,0 +1,12 @@
+.container{
+    width: 90%;
+    margin: 0px auto;
+}
+
+tr{
+    cursor: pointer;
+}
+
+.add-btn{
+    width: 150px;
+}

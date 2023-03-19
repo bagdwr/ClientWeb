@@ -7,12 +7,14 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Table(name = "client_file")
+@Entity
 public class ClientFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +32,7 @@ public class ClientFile {
     @ManyToOne(fetch = FetchType.LAZY)
     private ClientPackage clientPackage;
 
-    @CreatedDate
-    private Date created_at;
+
+    @Column(name = "created_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Timestamp created_at;
 }
