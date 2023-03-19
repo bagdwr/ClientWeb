@@ -36,4 +36,6 @@ public interface ClientService {
     List<ClientFileInfo> getFilesInfo(Long packageId);
 
     void createFile(Long packageId, MultipartFile file) throws IOException;
+
+    void deleteFileById(Long fileId);
 }

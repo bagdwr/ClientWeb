@@ -39,4 +39,11 @@ public class ClientFileController {
         clientService.createFile(packageId, file);
         return "redirect:/detail-package/" + packageId;
     }
+
+    @PostMapping(value = "/delete-file-by-id")
+    public String deleteFileById(@RequestParam(name = "packageId")Long packageId,
+                                 @RequestParam(name = "fileId") Long fileId) {
+        clientService.deleteFileById(fileId);
+        return "redirect:/detail-package/"+packageId;
+    }
 }

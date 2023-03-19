@@ -11,4 +11,5 @@ public class ClientFileInfo {
     public Long id;
     public String name;
     public String type;
+    public Long packageId;
 }

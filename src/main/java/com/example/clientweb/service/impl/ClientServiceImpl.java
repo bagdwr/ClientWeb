@@ -10,15 +10,12 @@ import com.example.clientweb.repository.ClientFileRepository;
 import com.example.clientweb.repository.ClientPackageRepository;
 import com.example.clientweb.repository.ClientRepository;
 import com.example.clientweb.service.ClientService;
-import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -114,6 +111,7 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.save(c);
     }
 
+    @Transactional
     @Override
     public List<ClientPackageInfo> getClientPackages(Long clientId) {
         List<ClientPackage> cps = clientPackageRepository.findByClientIdAndActualTrue(clientId);
@@ -135,7 +133,7 @@ public class ClientServiceImpl implements ClientService {
                 }
                 int sizeInBytes = byteArray.length;
                 double sizeInMb = (double) sizeInBytes / 1048576;
-                packageInfo.size = packageInfo.size + sizeInMb;
+                packageInfo.size = Math.round((packageInfo.size + sizeInMb) * 1000.0) / 1000.0;
             }
             packages.add(packageInfo);
         }
@@ -212,6 +210,7 @@ public class ClientServiceImpl implements ClientService {
         clientPackageRepository.save(clientPackage);
     }
 
+    @Transactional
     @Override
     public List<ClientFileInfo> getFilesInfo(Long packageId) {
         ClientPackage clientPackage = getPackageById(packageId);
@@ -222,7 +221,7 @@ public class ClientServiceImpl implements ClientService {
         List<ClientFile> clientFiles = clientFileRepository.findByClientPackageIdAndActualTrue(packageId);
         List<ClientFileInfo> fileInfoList = new ArrayList<>();
         for (ClientFile cf : clientFiles) {
-            ClientFileInfo clientFileInfo = new ClientFileInfo(cf.getId(), cf.getName(), cf.getType());
+            ClientFileInfo clientFileInfo = new ClientFileInfo(cf.getId(), cf.getName(), cf.getType(), cf.getClientPackage().getId());
             fileInfoList.add(clientFileInfo);
         }
 
@@ -238,24 +237,22 @@ public class ClientServiceImpl implements ClientService {
 
         ClientFile clientFile = new ClientFile();
         clientFile.setClientPackage(clientPackage);
-        clientFile.setName(file.getName());
+        clientFile.setName(file.getOriginalFilename());
         clientFile.setType(file.getContentType());
         clientFile.setData(file.getBytes());
 
-        try (Connection connection = dbManager.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO public.client_file(name, type,data, client_package_id) values (?,?,?,?);")) {
-                preparedStatement.setString(1, clientFile.getName());
-                preparedStatement.setString(2, clientFile.getType());
-                preparedStatement.setBlob(3, BlobProxy.generateProxy(clientFile.getData()));
-                preparedStatement.setLong(4, clientFile.getClientPackage().getId());
-                preparedStatement.executeUpdate();
-            }
-            connection.commit();
-            connection.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         clientFileRepository.save(clientFile);
+    }
+
+    @Override
+    public void deleteFileById(Long fileId) {
+        Optional<ClientFile> clientFile = clientFileRepository.findById(fileId);
+        if (clientFile.isEmpty()) {
+            return;
+        }
+
+        ClientFile file = clientFile.get();
+        file.setActual(false);
+        clientFileRepository.save(file);
     }
 }
