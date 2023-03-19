@@ -1,16 +1,24 @@
 package com.example.clientweb.service.impl;
 
+import com.example.clientweb.db.DbManager;
 import com.example.clientweb.entity.Client;
 import com.example.clientweb.entity.ClientFile;
 import com.example.clientweb.entity.ClientPackage;
+import com.example.clientweb.pojo.ClientFileInfo;
 import com.example.clientweb.pojo.ClientPackageInfo;
 import com.example.clientweb.repository.ClientFileRepository;
 import com.example.clientweb.repository.ClientPackageRepository;
 import com.example.clientweb.repository.ClientRepository;
 import com.example.clientweb.service.ClientService;
+import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +33,9 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private ClientFileRepository clientFileRepository;
+
+    @Autowired
+    private DbManager dbManager;
 
     @Override
     public Client saveClient(Client client) {
@@ -193,11 +204,58 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void updatePackage(Long packageId, String name) {
         ClientPackage clientPackage = getPackageById(packageId);
-        if(clientPackage==null) {
+        if (clientPackage == null) {
             return;
         }
 
         clientPackage.setName(name);
         clientPackageRepository.save(clientPackage);
+    }
+
+    @Override
+    public List<ClientFileInfo> getFilesInfo(Long packageId) {
+        ClientPackage clientPackage = getPackageById(packageId);
+        if (clientPackage == null) {
+            return null;
+        }
+
+        List<ClientFile> clientFiles = clientFileRepository.findByClientPackageIdAndActualTrue(packageId);
+        List<ClientFileInfo> fileInfoList = new ArrayList<>();
+        for (ClientFile cf : clientFiles) {
+            ClientFileInfo clientFileInfo = new ClientFileInfo(cf.getId(), cf.getName(), cf.getType());
+            fileInfoList.add(clientFileInfo);
+        }
+
+        return fileInfoList;
+    }
+
+    @Override
+    public void createFile(Long packageId, MultipartFile file) throws IOException {
+        ClientPackage clientPackage = getPackageById(packageId);
+        if (clientPackage == null) {
+            return;
+        }
+
+        ClientFile clientFile = new ClientFile();
+        clientFile.setClientPackage(clientPackage);
+        clientFile.setName(file.getName());
+        clientFile.setType(file.getContentType());
+        clientFile.setData(file.getBytes());
+
+        try (Connection connection = dbManager.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO public.client_file(name, type,data, client_package_id) values (?,?,?,?);")) {
+                preparedStatement.setString(1, clientFile.getName());
+                preparedStatement.setString(2, clientFile.getType());
+                preparedStatement.setBlob(3, BlobProxy.generateProxy(clientFile.getData()));
+                preparedStatement.setLong(4, clientFile.getClientPackage().getId());
+                preparedStatement.executeUpdate();
+            }
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        clientFileRepository.save(clientFile);
     }
 }

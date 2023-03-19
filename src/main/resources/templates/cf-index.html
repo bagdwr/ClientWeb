@@ -15,7 +15,8 @@
   <div class="row mt-5">
     <h3>Список файлов</h3>
     <div class="col-12">
-      <a th:href="@{'/add-new-file'}" class="btn btn-success add-btn">Добавить</a>
+      <a th:href="@{'/add-new-file/'+${package.getId()}}" class="btn btn-success add-btn">Добавить</a>
+      <a th:href="@{'/detail/'+${package.getClient().getId()}}" class="btn btn-primary add-btn">Назад</a>
     </div>
   </div>
   <div class="row mt-5">
@@ -23,29 +24,21 @@
       <table class="table">
         <thead>
         <tr>
-          <th>ФИО</th>
-          <th>ИИН</th>
-          <th>Номер документа</th>
-          <th>Кем выдано</th>
-          <th>Когда выдано</th>
-          <th>Срок действия документа</th>
+          <th>Название файла</th>
+          <th>ТИП</th>
           <th>Редактировать</th>
           <th>Удалить</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="client:${clients}" th:attr="onclick=|navigateByUrl('/detail/'+${client.getId()})|">
-          <th th:text="${client.getFio()}"></th>
-          <th th:text="${client.getIin()}"></th>
-          <th th:text="${client.getDocumentNumber()}"></th>
-          <th th:text="${client.getGivenBy()}"></th>
-          <th th:text="${#dates.format(client.getGivenDate(),'dd/MM/yyyy')}"></th>
-          <th th:text="${#dates.format(client.getExpirationDate(),'dd/MM/yyyy')}"></th>
-          <th><a th:href="@{'/edit-client/'+${client.getId()}}" class="btn btn-info btn-sm">Редактировать</a>
+        <tr th:each="f:${files}">
+          <th th:text="${f.getName()}"></th>
+          <th th:text="${f.getType()}"></th>
+          <th><a th:href="@{'/edit-file/'+${f.getId()}}" class="btn btn-info btn-sm">Редактировать</a>
           </th>
           <th>
-            <form th:action="@{'/delete-by-id'}" method="post">
-              <input type="hidden" name="id" th:value="${client.getId()}">
+            <form th:action="@{'/delete-file-by-id'}" method="post">
+              <input type="hidden" name="id" th:value="${f.getId()}">
               <button type="submit" class="btn btn-danger">Удалить</button>
             </form>
           </th>
